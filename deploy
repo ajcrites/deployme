@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [[ ! -d 1 || ! -d 2 ]]; then
+    echo "This must be run from the deployment root"
+    exit 1
+fi
+
+CURRENT=$(readlink cur)
+PREV=$(readlink prev)
+
+rm -rf $PREV
+curl -o repo.tar https://api.github.com/repos/ajcrites/deployme/tarball/master
+tar --extract --directory=$PREV
+read -s -p "Password: " passwd
+echo -n "
+{
+    "DB-PASS": "$passwd"
+}" > $PREV/config.json
+unset passwd
+
+ln -s -f -n $PREV cur
+ln -s -f -n $CUR prev
